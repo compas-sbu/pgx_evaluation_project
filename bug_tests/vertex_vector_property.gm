@@ -1,0 +1,6 @@
+procedure vertex_vector_property(G:graph, length : int, bitstring : nodeProp<vect<int>[length]>): int {
+    for (x: G.nodes) {
+        x.bitstring[2] = 0;
+    }
+    return 1;
+}

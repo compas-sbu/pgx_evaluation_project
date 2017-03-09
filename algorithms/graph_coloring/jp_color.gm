@@ -1,0 +1,57 @@
+procedure jp_color(G: graph, nodeID:nodeProperty<int>(G); color: nodeProperty<int>(G)): int {
+    int numColors = 0;
+    map<node(G), int> nodeColorMap;
+    nodeProperty<int>(G) randNum;
+    nodeProperty<nodeSet(G)>(G) pred;
+    nodeProperty<nodeSet(G)>(G) predForC;
+    nodeProperty<nodeSet(G)>(G) succ;
+    foreach (n : G.nodes) {
+        n.randNum = n.nodeID % 100; // rand(G.numNodes()*10);
+        n.color = -1;
+    }
+    foreach (v : G.nodes) {
+        nodeSet(G) p;
+        nodeSet(G) s;
+        foreach (u : v.nbrs) {
+            if (u.randNum > v.randNum || (u.randNum == v.randNum && u.nodeID > v.nodeID))
+                p.add(u);
+            else
+                s.add(u);
+        }
+        v.pred = p;
+        v.predForC = p;
+        v.succ = s;
+    }
+    while (nodeColorMap.size() != G.numNodes()) {
+        nodeSet(G) Rem;
+        foreach (v : G.nodes) {
+            if (v.color == -1 && v.pred.size() == 0) {
+                map<int, bool> S;
+                foreach (u : v.nbrs) {
+                    //If a color is used in neighbors,
+                    //it will have true value.
+                    if (u.color != -1) {
+                        S[u.color] = true;
+                    }
+                }
+                //Find out minimum color that is not
+                //assigned to the node's neighbors.
+                bool found = false;
+                int i = -1;
+                while (found == false) {
+                    i++;
+                    if (S.hasKey(i) == false)
+                        found = true;
+                }
+                v.color = i;
+                nodeColorMap[v] = i;
+                Rem.add(v);
+            }
+        }
+        foreach (v : G.nodes) {
+            v.pred.removeAll(Rem);
+        }
+    }
+    numColors = nodeColorMap.getMaxValue() + 1;
+    return numColors;
+}

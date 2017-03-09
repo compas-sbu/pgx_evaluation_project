@@ -1,0 +1,4 @@
+procedure vector_of_bools() {
+    vect<bool>[3] v;
+    v[1] = true;
+}

@@ -1,0 +1,3 @@
+procedure two_dimensional_vector() {
+    vect<vect<int>>[3] v;
+}

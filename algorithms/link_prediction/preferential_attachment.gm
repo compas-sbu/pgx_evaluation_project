@@ -1,0 +1,14 @@
+
+procedure preferential_attachment(g: graph, id: nodeProperty<int>(g), node_cnt: int; scores: nodeProperty<vect<double>[node_cnt]>) {
+    foreach (n : g.nodes)
+        n.scores = 0;
+    foreach (x : g.nodes) {
+        vect<double>[node_cnt] scores;
+        for (y : g.nodes) {
+            if (x.id != y.id && !x.hasEdgeTo(y)) {
+                scores[y.id] = x.degree() * y.degree();
+            }
+        }
+        x.scores = scores;
+    }
+}

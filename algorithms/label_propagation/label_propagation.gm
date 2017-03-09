@@ -1,0 +1,62 @@
+procedure label_propagation(G: graph, nodeID: nodeProperty<int>(G); label: nodeProperty<int>(G)): int {
+    foreach (nodeEl : G.nodes) {
+        nodeEl.label = nodeEl.nodeID;
+    }
+    nodeProperty<int>(G) prev_label;
+    nodeProperty<int>(G) prev_prev_label;
+    bool done = false;
+    int iter_cnt = 0;
+    while (!done) {
+        iter_cnt += 1;
+        foreach (nodeEl : G.nodes) {
+            nodeEl.prev_prev_label = nodeEl.prev_label;
+            nodeEl.prev_label = nodeEl.label;
+        }
+        foreach (nodeEl : G.nodes) {
+            map<int,int> labelCountMap;
+            for (nbr : nodeEl.nbrs) {
+                // avoid map[node.property], it's buggy
+                int nbr_label = nbr.prev_label;
+                labelCountMap[nbr_label] = 0;
+            }
+            for (nbr : nodeEl.nbrs) {
+                int nbr_label = nbr.prev_label;
+                labelCountMap[nbr_label] += 1;
+            }
+            // there may be more than one labels with
+            // max count, so need further selection
+            int new_label = -1;
+            int maxCount = labelCountMap.getMaxValue();
+            for (nbr : nodeEl.nbrs) {
+                // if nbr.prev_label is used directly, PGX will complain
+                int nbr_label = nbr.prev_label;
+                if (nbr_label > new_label && labelCountMap[nbr_label] == maxCount) {
+                    new_label = nbr_label;
+                }
+            }
+            nodeEl.label = new_label;
+        }
+        if (iter_cnt > 2) {
+            bool same_as_prev = true;
+            bool same_as_prev_prev = true;
+            foreach (n : G.nodes) {
+                if (n.prev_label != n.label) {
+                    same_as_prev = false;
+                }
+                if (n.prev_prev_label != n.label) {
+                    same_as_prev_prev = false;
+                }
+            }
+            if (same_as_prev || same_as_prev_prev) {
+                done = true;
+            }
+        }
+    }
+    map<int,int> labelSet;
+    foreach (n : G.nodes) {
+        //avoid map[node.property], it's buggy
+        int n_label = n.label;
+        labelSet[n_label] = 1;
+    }
+    return labelSet.size();
+}

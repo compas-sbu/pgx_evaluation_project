@@ -1,0 +1,4 @@
+procedure int_bool_map() {
+    map<int, bool> m;
+    m[0] = true;
+}

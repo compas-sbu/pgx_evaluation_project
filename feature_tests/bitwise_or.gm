@@ -1,0 +1,5 @@
+procedure bitwise_or(): int {
+    int x = 6745;
+    int y = 7765;
+    return x | y;
+}

@@ -1,0 +1,91 @@
+
+procedure flajolet_martin(g: graph, L: int, max_iter: int; radius: nodeProperty<int>(g)): int {
+
+    nodeProperty<vect<int>[L]>(g) b_0;
+    nodeProperty<vect<int>[L]>(g) b_1;
+    nodeProperty<vect<double>[max_iter]>(g) N;
+    vect<double>[max_iter] N_sums;
+    int cur_hop = 0;
+    bool done = false;
+
+    foreach (n : g.nodes) {
+        vect<int>[L] bs = 0;
+        int pos = 0;
+        while (pos < L - 1 && rand(2) == 0) {
+            pos += 1;
+        }
+        bs[pos] = 1;
+        n.b_0 = bs;
+    }
+
+    while (!done && cur_hop < max_iter) {
+        int changed = 0;
+        double n_sum = 0.0;
+        foreach (x : g.nodes) {
+            vect<int>[L] old_map = 0;
+            vect<int>[L] new_map = 0;
+            int R = 0;
+            if (cur_hop % 2 == 0) {
+                old_map = x.b_0;
+                new_map = x.b_0;
+            } else {
+                old_map = x.b_1;
+                new_map = x.b_1;
+            }
+            for (y : x.nbrs) {
+                vect<int>[L] nbr_map;
+                if (cur_hop % 2 == 0) {
+                    nbr_map = y.b_0;
+                } else {
+                    nbr_map = y.b_1;
+                }
+                int idx = 0;
+                while (idx < L) {
+                    if (new_map[idx] == 1 || nbr_map[idx] == 1) {
+                        new_map[idx] = 1;
+                        R max= idx + 1;
+                    }
+                    idx += 1;
+                }
+            }
+            int idx = 0;
+            while (idx < L) {
+                if (new_map[idx] != old_map[idx]) {
+                    changed += 1;
+                }
+                idx += 1;
+            }
+            if (cur_hop % 2 == 0) {
+                x.b_1 = new_map;
+            } else {
+                x.b_0 = new_map;
+            }
+            double n = pow(2, R) / 0.77351;
+            vect<double>[max_iter] x_N = x.N;
+            x_N[cur_hop] = n;
+            x.N = x_N;
+            n_sum += n;
+        }
+        N_sums[cur_hop] = n_sum;
+        cur_hop += 1;
+        if (changed > 0) {
+            done = true;
+        }
+    }
+
+    int max_hop = cur_hop - 1;
+    foreach (n : g.nodes) {
+        int hop = 0;
+        vect<double>[max_iter] n_N = n.N;
+        while (hop <= max_hop && n_N[hop] / n_N[max_hop] < 0.9) {
+            hop++;
+        }
+        n.radius = hop + 1;
+    }
+
+    int hop = 0;
+    while (hop <= max_hop && N_sums[hop] / N_sums[max_hop] < 0.9) {
+        hop++;
+    }
+    return hop + 1;
+}

@@ -1,0 +1,19 @@
+
+procedure leicht_holme_newman_index(g: graph, id: nodeProperty<int>(g), node_cnt: int; scores: nodeProperty<vect<double>[node_cnt]>) {
+    foreach (n : g.nodes)
+        n.scores = 0;
+    foreach (x : g.nodes) {
+        vect<double>[node_cnt] scores;
+        for (y : g.nodes) {
+            if (x.id != y.id && !x.hasEdgeTo(y)) {
+                double c = 0.0;
+                foreach (s : y.nbrs) {
+                    if (x.hasEdgeTo(s))
+                        c += 1.0;
+                }
+                scores[y.id] = c / (x.degree() * y.degree());
+            }
+        }
+        x.scores = scores;
+    }
+}
