@@ -1,0 +1,24 @@
+procedure vertex_cover(G:graph; vCover: N_P<int>(G)):int
+{
+    map<node, int> cost;
+    for (n: G.nodes)
+    {
+        n.vCover=1;
+    }
+
+    int mincost;
+    for(u: G.nodes)
+    {
+       for(v: u.nbrs)
+       {
+           if(u.vCover < v.vCover)
+            mincost = u.vCover;
+           else mincost = v.vCover;
+
+           u.vCover = u.vCover - mincost;
+           v.vCover = v.vCover - mincost;
+       }
+    }
+
+    return G.numNodes();
+}

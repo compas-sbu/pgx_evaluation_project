@@ -1,0 +1,50 @@
+
+local cc_func(G: graph, v: node, u: node, mode: int): double {
+	double cc;
+	int intersection;
+	int union;
+	intersection = sum(l: v.nbrs){ count(m: u.nbrs)(m == l) };
+	double dem = v.numNbrs();
+	union = v.numNbrs() + u.numNbrs() - intersection;
+	if (mode == 0) {
+		cc = (double)intersection/(double)union;
+	}
+	else if(mode == 1) {
+		if (dem < u.numNbrs()) dem = u.numNbrs();
+		cc = (double)intersection/dem;
+		//cc = intersection/(v.numNbrs() > u.numNbrs()) ? v.numNbrs() : u.numNbrs();
+	}
+	else if(mode == 2) {
+		if (dem > u.numNbrs()) dem = u.numNbrs();
+		cc = (double)intersection/dem;
+		//cc = intersection/(v.numNbrs() < u.numNbrs()) ? v.numNbrs() : u.numNbrs();
+	}
+
+	return cc;
+
+}
+
+proc clustering(G: graph, mode: int; cc:N_P<double> ): double {
+	double avg_cc;
+	for(v: G.nodes){
+		double scc = 0.0;
+		N_S nbr2;
+		for(u: v.nbrs){ // foreach preferred
+			for(w: u.nbrs)(w!=v){ // foreach preferred
+				nbr2.add(w);
+			}
+		}
+		for(u: nbr2.items){
+			scc += cc_func(G, v, u, mode);
+			
+		}
+		if (scc > 0.0)
+			scc = scc /(double) nbr2.size();
+		v.cc = scc;
+		avg_cc += scc;
+	}
+	
+	
+	return avg_cc/G.numNodes();
+}
+

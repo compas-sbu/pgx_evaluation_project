@@ -1,0 +1,22 @@
+proc square_clustering(G: graph; C: N_P <double>, P: N_P<double>): int {
+	for(v: G.nodes) {
+		v.C = 0.0;
+		int potential = 0;
+		for(u: v.nbrs){
+			for(w: v.nbrs)( w > u ){
+				int squares = 0;
+				int degm = 0;
+				squares = sum(x: u.nbrs)(x!=v){count(y:w.nbrs)(y==x)};
+				v.C += squares;
+				degm = squares + 1;
+				if (u.hasEdgeTo(w))
+					degm += 1;
+				potential += (u.numNbrs() - degm) * (w.numNbrs() - degm) + squares;
+			}
+		}
+		v.P = potential;
+		if (potential > 0)
+			v.C = v.C / (float)potential;
+	}
+	return 0;
+}

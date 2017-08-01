@@ -1,0 +1,21 @@
+/*
+ * Returns the minimum maximal matching of G
+ */
+procedure min_maximal_matching(G: graph; E: E_S(G)) : int {
+	E_S(G) S;
+
+	for(e: G.edges) {
+		int update = 0;
+		update = count(r: S.items) ((r.toNode() == e.toNode()) || 
+								(r.toNode() == e.fromNode()) || 
+								(r.fromNode() == e.toNode()) || 
+								(r.fromNode() == e.fromNode()));
+		if(update == 0) {
+			S.add(e);
+			E.add(e);
+		}
+		
+	}	
+
+	return S.size();
+}

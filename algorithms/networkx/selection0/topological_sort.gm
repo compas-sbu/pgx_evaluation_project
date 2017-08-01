@@ -1,0 +1,40 @@
+procedure topological_sort(G: graph; seq_order: nodeProp<int>) : bool {
+
+
+    nodeProp<bool> visited;
+    G.visited = false;
+    bool flag = true;
+    map<node, int> finish_time;
+    int i = 0;
+    G.seq_order = 0;
+
+
+    for(t : G.nodes) (!t.visited) {
+
+        inDFS(n : G.nodes from t) {
+           n.visited = true;
+        }
+
+        inPost{
+
+            finish_time[n] = i;
+            i++;
+        }
+    }
+
+    int sort_order = 0;
+    G.visited = false;
+
+    while(finish_time.size() != 0) {
+        node(G) next = finish_time.getMaxKey();
+
+        inDFS(n: G.nodes from next) [!n.visited] {
+            sort_order++;
+            n.seq_order = sort_order;
+            finish_time.remove(n);
+            n.visited = true;
+        }
+    }
+
+    return flag;
+}

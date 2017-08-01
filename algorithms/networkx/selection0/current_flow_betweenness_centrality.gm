@@ -1,0 +1,28 @@
+procedure current_flow_closeness(G: graph, n : int, positionProp : edgeProp<vect<int>[n]>, valueProp : edgeProp<vect<double>[n]>, id : nodeProp<int>; betweenness: nodeProp<double>) : int {
+
+    G.betweenness = 0;
+
+    for(e : G.edges) {
+
+        node from_node = e.fromNode();
+        node to_node = e.toNode();
+        vect<int>[n] position = e.positionProp;;
+        vect<double>[n] value = e.valueProp;;
+
+        int i = 0;
+        while(i < n) {
+            from_node.betweenness = from_node.betweenness + (i-position[i])*value[i];
+            to_node.betweenness = to_node.betweenness + (n-i-1-position[i])*value[i];
+            i = i + 1;
+        }
+    }
+
+    int norm = (n-1)*(n-2);
+    for(v : G.nodes) {
+        v.betweenness = (2*(v.betweenness - v.id))/norm;
+    }
+
+
+    return n;
+
+}

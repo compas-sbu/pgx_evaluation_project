@@ -1,0 +1,114 @@
+procedure cycle_basis(G: graph, n : int, n2 : int, id : nodeProp<int>, root : node;
+            cycleProp : nodeProp<vect<int>[n2]>): int {
+
+    vect<int>[n] gNodes;
+    int next = -1;
+
+    int i = 0;
+
+    for(v : G.nodes) {
+        gNodes[i] = v.id;
+        i++;
+        if(next == -1) next = v.id;
+    }
+
+    vect<int>[n2] cycle;
+    i = 0;
+    while(i < n2) {
+        cycle[i] = -1;
+        i++;
+    }
+
+    // setting up reverse map
+    map<int, node> map_id;
+    for(v : G.nodes) {
+        map_id[v.id] = v;
+    }
+
+    // cycle count;
+    int cc = 0;
+
+    vect<int>[n2] used;
+
+    while(next != -1) {
+
+        vect<int>[n2] stack;
+        int s = 0;
+        stack[s] = next;
+
+        map<int, int> pred;
+        pred[next] = next;
+
+        // initialize set
+
+        i = 0;
+        while(i < n2) {
+            used[i] = -1;
+            i++;
+        }
+
+        if(next < n2)
+            used[next] = 1;
+
+        while(s >= 0) {
+            node z = map_id[stack[s]];
+            s--;
+
+            for (nbr : z.nbrs) {
+
+                if(used[nbr.id] == -1) {
+                    // find if a new node
+                    pred[nbr.id] = z.id;
+                    s++;
+                    stack[s] = nbr.id;
+                    used[nbr.id] = 1;
+                    used[n + nbr.id*n + z.id] = 1;
+                }
+                else if(nbr.id == z.id) {
+                    // self loop
+                    cycle[cc*n] = nbr.id;
+                    cc++;
+                }
+                else if(used[n + z.id*n + nbr.id] == -1) {
+                   cycle[cc*n+0] = nbr.id;
+                   cycle[cc*n+1] = z.id;
+                   node p = map_id[pred[z.id]];
+
+                   int t = 2;
+                   while (used[nbr.id] == 1 && used[n + nbr.id*n + p.id] == -1) {
+                       cycle[cc*n+t] = p.id;
+                       p = map_id[pred[p.id]];
+                       t++;
+                   }
+                   cycle[cc*n+t] = p.id;
+                   used[n + nbr.id*n + z.id] = 1;
+                   cc++;
+                }
+            }
+        }
+
+        // reduce set
+        i = 0;
+        while(i < n) {
+            if(gNodes[i] != -1 && pred.hasKey(gNodes[i])) {
+                gNodes[i] = -1;
+            }
+            i++;
+        }
+
+        // find next element to pop out
+        next = -1;
+
+        i = 0;
+        while(i < n && next == -1) {
+           if(gNodes[i] != -1) {
+                next = gNodes[i];
+           }
+           i++;
+        }
+
+    }
+
+    root.cycleProp = cycle;
+    return cc;
+}

@@ -1,0 +1,106 @@
+/*
+ * Coloring a graph using various strategies of greedy graph coloring. 
+ */
+procedure color(G: graph, strategy: int; color: nodeProperty<int>): int {
+	G.color = -1;
+	nodeSeq seq;
+
+	/*Largest First*/
+	if(strategy == 1) {
+		map<node, int> deg;
+		foreach(n: G.nodes) {deg[n] = n.degree();}
+		
+		while(deg.size() > 0) {
+			node x = deg.getMaxKey();
+			seq.push(x);
+			deg.remove(x);
+		}
+	}
+
+	/*Smallest First*/
+	if(strategy == 2) {
+		map<node, int> deg;
+		foreach(n: G.nodes) {deg[n] = n.degree();}
+		
+		while(deg.size() > 0) {
+			node x = deg.getMinKey(); 
+			seq.push(x);
+			deg.remove(x);
+		}
+	}
+
+	/*Independent Set*/
+	if(strategy == 3) {
+		int no_colored = 0;
+		int k = 0;
+		N_S(G) uncolored;		
+
+		foreach(n: G.nodes) {uncolored.add(n);}
+		while(uncolored.size() > 0) {
+			N_S(G) available = uncolored;
+
+			while(available.size() > 0) {
+				map<node, int> min_deg;
+				foreach(r: available.items) {min_deg[r] = r.degree();}
+				node(G) min_node = min_deg.getMinKey();
+				min_node.color = k;
+
+				no_colored++;
+				uncolored.remove(min_node);
+				available.remove(min_node);
+				foreach(r: min_node.nbrs) {available.remove(r);}
+			}
+			k++;
+		}
+		for(n: G.nodes) {seq.push(n);}
+	}
+
+	/*BFS/DFS strategy*/
+	if(strategy == 4 || strategy == 5) {	
+		int max_degree = max(n: G.nodes){n.degree()};
+		node(G) start;
+		foreach(r: G.nodes) {
+			if(r.degree() == max_degree)
+				start = r;
+		}
+
+		start.color = 0;
+		nodeProperty<bool>(G) visited;
+		G.visited = false;
+
+		start.visited = true;
+
+		if(strategy == 4) {
+			inBFS (r: G.nodes from start) (!r.visited) {
+				r.visited = true;
+				seq.push(r);
+			}
+		}
+		else {
+			inDFS (r: G.nodes from start) (!r.visited) {
+				r.visited = true;
+				seq.push(r);
+			}
+		}
+	}
+
+	int max_col = 0;
+	for(t: seq.items) {
+		map<int, int> colorMap;
+		foreach(n: t.nbrs) {
+			colorMap[n.color]++;
+		}
+		int i =0;
+		while(i<G.numNodes()) {
+			if(!colorMap.hasKey(i)) {
+				t.color = i;
+				if(i>max_col) {
+					max_col = i;
+				}
+				i = G.numNodes();
+			}
+			i++;
+		}
+	}
+	return max_col;
+}

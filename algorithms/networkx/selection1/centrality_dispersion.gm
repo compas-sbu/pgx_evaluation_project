@@ -1,0 +1,57 @@
+procedure centrality_dispersion(G:graph, norm:bool, u1:int, v1:int) : double
+{
+    nodeSet(G) u_nbrs, ST, set_uv;
+    double alpha=1.0;
+    double b=0.0;
+    double c=0.0;
+    N_P<int> id;
+    int i=0;
+    node u, v;
+    for(n: G.nodes) {
+        if(i==u1) u=n;
+        if(i==v1) v=n;
+        n.id=i;
+        i++;
+    }
+    set_uv.add(u);
+    set_uv.add(v);
+    for(x: u.outNbrs)
+        u_nbrs.add(x);
+    for(x: v.outNbrs)
+        if(u_nbrs.has(x)) ST.add(x);
+
+    int tot=0;
+    for(s: ST.items)
+    {
+        for(t: ST.items)
+        {
+            nodeSet(G) s_nbrs, t_nbrs;
+            bool pres = false;
+            for(x: s.outNbrs)
+                if(x != u && x != v)
+                    s_nbrs.add(x);
+            for(x: s.outNbrs)
+                t_nbrs.add(x);
+            if(s_nbrs.has(t) == false){
+                foreach(a: s_nbrs.items){
+                    if(t_nbrs.has(a)) pres=true;
+                }
+            }
+            if(pres==true) tot=tot+1;
+        }
+    }
+
+    int embededness = ST.size();
+    double dispersion, norm_dispersion;
+    if(norm){
+        if((embededness+c)!=0)
+            norm_dispersion = ((tot+b) * alpha)/(embededness+c);
+        else
+            norm_dispersion = (tot+b) * alpha;
+        dispersion = norm_dispersion;
+    }
+    else dispersion = (double)tot;
+
+    return dispersion;
+
+}

@@ -1,0 +1,91 @@
+procedure flow_hierarchy(G:graph; SCC: N_P<long>) : double
+{
+    //************Strongly Connected Components*******************//
+    N_P<bool> InStack;
+    N_P<long> LowLink;
+    N_P<long> Index;
+    N_P<long> ID;
+    nodeSeq Stack;
+
+    // sequentially initialize, otherwise compiler flags this algorithm as parallel in nature
+    int i=0;
+    for (n: G.nodes) {
+        n.SCC = -1;
+        n.InStack = false;
+        n.Index = -1;
+        n.ID=i;
+        i++;
+    }
+
+    long num_scc = 0;
+
+    // DFS
+    for(n: G.nodes) (n.SCC == -1)
+    {
+        long dfs_index = 0;
+
+        inDFS(t: G.nodes from n)[t.Index == -1]
+        {
+            // previsit
+            Stack.pushBack(t);
+            t.InStack = true;
+            t.LowLink = dfs_index;
+            t.Index = dfs_index;
+            dfs_index++;
+        }
+        inPost
+        {
+            // post visit
+            for(k: t.nbrs)(k.SCC == -1)  {
+                t.LowLink min= k.LowLink;
+            }
+
+            // identified an SCC
+            if (t.LowLink == t.Index) {
+                node w = Stack.popBack();
+                while (w != t) {
+                    w.InStack = false;
+                    w.SCC = num_scc;
+                    w = Stack.popBack();
+                }
+                w.InStack = false;
+                w.SCC = num_scc;
+                num_scc++;
+            }
+        }
+    }
+    //return num_scc;
+    //*******************************//
+
+    long L = G.numEdges();
+    map<edge(G), double> eMap;
+    for(u: G.nodes)
+    {
+        for(v: u.outNbrs)
+        {
+            edge(G) e = v.toEdge(); //(u->v)
+            if(u.SCC == v.SCC)
+            {
+                eMap[e]=0;
+            }
+            else
+            {
+                eMap[e]=1;
+            }
+        }
+    }
+
+    double tot=0;
+    for(u: G.nodes)
+    {
+        for(v: u.outNbrs)
+        {
+            edge(G) e = v.toEdge(); //(u->v)
+            tot=tot+eMap[e];
+        }
+    }
+
+    double h = tot/(double)L;
+    return h;
+
+}

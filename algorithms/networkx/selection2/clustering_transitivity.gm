@@ -1,0 +1,11 @@
+proc triads(G: graph ): long {
+	
+	long contri = 0;
+	
+	foreach(n: G.nodes) {
+		int d = sum(m:n.nbrs)(m!=n){1};
+		contri += (long)d*(d-1);
+	}
+	return contri/2;
+}
+

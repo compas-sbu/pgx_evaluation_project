@@ -1,0 +1,38 @@
+procedure label_propagation(G: graph, max_iters : int; label: nodeProp<int>) : int{
+    G.label = 0;
+    
+    nodeProp<int> label_new;
+    G.label_new = 0;
+    
+    int i = 1;
+    for(s : G.nodes) {
+        s.label = i;
+        i = i + 1;
+    }
+    
+    bool hasChanged = false;
+    int iters = max_iters;
+    while(iters >= 0 && !hasChanged) {
+
+        for(s : G.nodes) {
+
+            map <int , int > label_freq;
+            for(nbr : s.nbrs) {
+                label_freq[nbr.label]++;
+            }
+
+
+            s.label_new = label_freq.getMaxKey();
+        }
+
+        for(s : G.nodes) {
+            if(s.label_new != s.label) hasChanged |= true;
+            s.label = s.label_new;
+        }
+
+        iters--;
+
+    }
+
+    return 0;
+}

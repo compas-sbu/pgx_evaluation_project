@@ -1,0 +1,42 @@
+procedure average_clustering(G: graph, num : int, trials : int) : double {
+
+    nodeProp<int> id;
+    G.id = 0;
+    map<int, node> map_id;
+
+    int i = 0;
+    for(n : G.nodes) {
+        n.id = i;
+        map_id[i] = n;
+        i++;
+    }
+
+    double triangles = 0;
+
+    int j = trials;
+    while(j > 0) {
+
+        i = rand(num-1);
+        node n = map_id[(int) i];
+
+        if (n.numNbrs() >= 2) {
+
+            node n1 = n.pickRandomNbr();
+            node n2 = n.pickRandomNbr();
+
+            while(n1 == n2) {
+                n2 = n.pickRandomNbr();
+            }
+
+            for (nbr : n1.nbrs) {
+                if(nbr == n2) {
+                    triangles++;
+                }
+            }
+        }
+        j--;
+    }
+
+    return (triangles/trials);
+
+}

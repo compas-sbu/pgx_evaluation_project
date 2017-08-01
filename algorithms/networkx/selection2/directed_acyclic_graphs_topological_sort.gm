@@ -1,0 +1,37 @@
+/*
+Checks weather given graph is DAG. If DAG returns topological sort else returns -1
+*/
+proc topological_sort ( G: graph; L: N_Q(G) ) : int {
+	int update = 1;
+	int  r = 0;
+	E_P <int>(G) mark;
+	G.mark = 0;
+	N_P <double>(G) in_num;
+	
+	foreach (n: G.nodes) {
+		n.in_num = n.numInNbrs();
+	}
+	
+	while(update == 1) {
+		update = 0;
+		// Find nodes where inDegree is zero
+		foreach (n: G.nodes)(n.in_num == 0) {
+			L.push(n);
+			n.in_num = -1;
+			// Mark/Remove the edges from the node	
+			foreach (e: n.edges) {
+				update = 1;
+				e.mark = 1;
+			}
+		}
+		// Update the indegrees of other nodes.
+		foreach (n: G.nodes)(n.in_num > 0) {
+			n.in_num = sum(e: n.inEdges)(e.mark == 0){1};
+		}
+	}
+	// check if all nodes are inserted or not.
+	if (G.numNodes() != L.size()) {
+		r = -1;
+	}
+	return r;
+}

@@ -1,0 +1,34 @@
+//FOR UNDIRECTED GRAPHS
+procedure assortativity_neighbor_degree(G:graph, isWeights: bool, weight: E_P<double>(G) ; avgDegree: N_P<double>)
+{
+    double sum1=0.0;
+    double sum2=0.0;
+    if(isWeights==false)
+    {
+        foreach (u: G.nodes)
+        {
+           sum1 = (double)u.degree();
+           if(sum1==0) sum1=1;
+           sum2 = 0.0;
+           foreach(v: u.nbrs)
+               sum2 = sum2 + (double)v.degree();
+            u.avgDegree = (sum2/sum1);
+        }
+    }
+    else
+    {
+        foreach (u: G.nodes)
+        {
+           sum1 = 0.0;
+           sum2 = 0.0;
+           for(v: u.nbrs)
+           {
+               edge(G) e = v.toEdge();
+               sum1 = sum1 + e.weight;
+               sum2 = sum2 + (e.weight * (v.degree()));
+           }
+           if(sum1==0.0) sum1=1.0;
+            u.avgDegree = (sum2/sum1);
+        }
+    }
+}

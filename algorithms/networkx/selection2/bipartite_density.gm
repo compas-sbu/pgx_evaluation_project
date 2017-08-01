@@ -1,0 +1,10 @@
+proc bipartite_density (G: graph, X: N_S): float {
+	long n, m, nb, nt;
+	n = G.numNodes();
+	m = G.numEdges();
+	nb = X.size();
+	nt = n-nb;
+	if (m == 0) 
+		return 0.0;
+	return m/(2*nb*nt + 0.0);
+}

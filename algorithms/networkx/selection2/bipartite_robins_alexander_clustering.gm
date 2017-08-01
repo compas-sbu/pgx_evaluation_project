@@ -1,0 +1,35 @@
+proc robin_alex_clustering (G: graph): double {
+	if (G.numNodes() < 4 || G.numEdges() < 3) 
+		return 0;
+	double threePaths;
+	double fourCycles;
+	threePaths = func_3Path(G);
+	if (threePaths == 0.0)
+		return 0;
+	fourCycles = func_4Cycle(G);
+	
+	return 4*fourCycles/threePaths;
+}
+
+local func_3Path(G: graph): double{
+	double path;
+	foreach (v: G.nodes) {
+		foreach (u: v.nbrs){
+			foreach (w: u.nbrs)(u != w && v != w)
+				path += count(y: w.nbrs)(y != v && u != y && y !=w );	
+		}
+	}
+	return path/2;
+}
+
+local func_4Cycle(G: graph): double{
+	double cycle;
+	foreach (v: G.nodes) {
+		foreach(u: v.nbrs){
+			foreach(w: v.nbrs)(w > u){
+				cycle += sum(x: u.nbrs)(x != v){count(y: w.nbrs)(x==y)};
+			}
+		}
+	}
+	return cycle/4;
+}

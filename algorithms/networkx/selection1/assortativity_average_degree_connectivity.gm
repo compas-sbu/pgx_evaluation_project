@@ -1,0 +1,41 @@
+//undirected graphs
+procedure avg_degree_connectivity(G:graph ; avgDegCon: map<int, double>): int
+{
+    int k;
+    int temp;
+    map<int, int> dsum;
+    map<int, int> dnorm;
+    int k_max = max(n: G.nodes) {n.numNbrs()};
+    int i=0;
+    while(i<=k_max)
+    {
+        dsum[i]=0;
+        dnorm[i]=0;
+        avgDegCon[i]=0.0;
+        i=i+1;
+    }
+
+    for (u: G.nodes){
+        k = u.degree();
+        for(v : u.nbrs)
+        {
+            dsum[k]=dsum[k]+v.inDegree() + v.outDegree();
+        }
+       dnorm[k] = dnorm[k] + u.numInNbrs() + u.numOutNbrs();
+    }
+
+
+    int j=1;
+    int norm;
+    while(j<=k_max)
+    {
+        avgDegCon[j] = (double)(dsum[j]);
+        norm = dnorm[j];
+        if(dnorm[j]>0)
+           avgDegCon[j] = avgDegCon[j]/norm;
+        j=j+1;
+    }
+
+    return k_max;
+
+}

@@ -1,0 +1,61 @@
+procedure dijkstra_landmarks(G:graph, Len:edgeProp<double>, root : node,
+        landmark: nodeProp<bool>; cost: map<node, double>) : bool
+{
+    if(G.numNodes() == 0) return false;
+
+    N_P<bool> Reached;
+    G.Reached = false;
+
+    map<node, double> Reachable;
+    Reachable[root] = 0.0;            // Add root to reachable set
+
+    bool found = false;
+    bool failed = false;
+    int total_landmarks = 0;
+
+    for(n : G.nodes) {
+        if(n.landmark == true) {
+            total_landmarks++;
+        }
+    }
+
+
+    while (!found && !failed)
+    {
+        if (Reachable.size() == 0)
+        {
+            failed = true;
+        }
+        else {
+
+            node(G) next = Reachable.getMinKey();
+            if (next.landmark == true)  {
+                total_landmarks--;
+                cost[next] = Reachable[next];
+            }
+            if (total_landmarks == 0)  {
+                found = true;
+            }
+            else {
+                next.Reached = true;
+                double dist = Reachable[next];
+                Reachable.remove(next);
+
+                for(v: next.nbrs)(!v.Reached) {
+                    edge e = v.toEdge();
+                    if (!Reachable.hasKey(v)) {
+                        Reachable[v] = dist + e.Len;
+
+                    }
+                    else if (Reachable[v] > dist + e.Len) {
+                        Reachable[v] = dist + e.Len;
+
+                    }
+                }
+            }
+        }
+    }
+
+    // return false if not reachable
+    return !failed;
+}

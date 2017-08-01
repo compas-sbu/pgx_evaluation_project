@@ -1,0 +1,32 @@
+//min_edge_dominating_set(G)
+procedure min_edge_dominating_set(G:graph; matches: edgeSet(G))
+{
+    edgeSet edgeList;
+    for(u : G.nodes)
+    {
+        for(v : u.nbrs)
+        {
+            edge(G) uv = v.toEdge();
+            edge(G) uv1;
+            for(t : v.nbrs){
+                if(t==u){
+                   uv1 = t.toEdge();
+                 }
+            }
+
+            if(edgeList.has(uv)==false && edgeList.has(uv1)==false){
+                matches.add(uv);
+                for(n : u.nbrs)
+                {
+                    edge(G) temp = n.toEdge();
+                    edgeList.add(temp);
+                }
+                for(n : v.nbrs)
+                {
+                    edge(G) temp = n.toEdge();
+                    edgeList.add(temp);
+                }
+            }
+        }
+    }
+}

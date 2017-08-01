@@ -1,0 +1,28 @@
+proc clustering(G: graph, W1: E_P<double>; C:N_P<double> ): double {
+	double max_weight;
+	E_P<double> W;
+	max_weight = max(n:G.edges){n.W1};
+	G.W = _.W1/max_weight;
+	double total_c;
+	foreach(u: G.nodes)(u.degree() >= 2) {
+		double weighted_tri = 0.0;
+		int d = 0;
+		foreach(v: u.nbrs) {
+			edge uv = v.toEdge();
+			d++;
+			foreach(w: u.nbrs)(w<v) {
+				edge uw = w.toEdge();
+				if (v.hasEdgeTo(w)) {
+					edge vw;
+					foreach(x: v.nbrs)(x==w)
+						vw = x.toEdge();
+					weighted_tri += pow((uv.W * uw.W * vw.W), 1/3.0);
+				}
+			}
+		}
+		u.C = 2*weighted_tri/(double)(d*(d-1));
+		total_c += u.C;
+	}
+	return total_c/G.numNodes();
+}
+

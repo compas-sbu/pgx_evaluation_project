@@ -1,0 +1,28 @@
+/*
+checks weather given node set X is bipartite node set or not. returns 0 if true else -1.
+*/
+
+proc is_bipartite_node_set (G: graph; X: N_S): int {
+	int r = 0;
+	foreach (n: G.nodes) {
+		if (X.has(n)) {
+			foreach (m: n.nbrs) (X.has(m)) {
+				r = -1;
+			}
+			foreach (m: n.inNbrs) (X.has(m)) {
+				r = -1;
+			}
+
+		}
+		else {
+			foreach (m: n.nbrs) (!X.has(m)) {
+				r = -1;
+			}
+			foreach (m: n.inNbrs) (!X.has(m)) {
+				r = -1;
+			}
+
+		}	
+	}
+	return r;
+}

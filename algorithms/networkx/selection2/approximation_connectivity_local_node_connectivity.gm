@@ -1,0 +1,95 @@
+/*
+ * Compute node connectivity between source and target.
+ * Connectivity is minimum number of nodes that must be removed to disconnect them.
+ */
+procedure local_node_connectivity(G: graph, source: node(G), target: node(G)) : int {	
+	N_S(G) X;
+	int possible = 0;
+	if(source.degree() < target.inDegree()) {
+		possible = source.degree();
+	}
+	else {
+		possible = target.inDegree();
+	}
+	int K = 0;
+	if(possible == 0) {return K;}
+
+	bool pathFound = true;
+	while(possible > 0 && pathFound) {
+	
+		map<node(G), node(G)> pred;
+		map<node(G), node(G)> succ;
+		pred[source] = NIL;
+		succ[target] = NIL; 
+
+		N_S(G) forSet;
+		N_S(G) revSet;
+		forSet.add(source);
+		revSet.add(target);
+
+		bool found = false;
+		node(G) mid = NIL;
+		int level = 0;
+		N_S(G) this_level;
+		while(!found && (forSet.size() != 0) && (revSet.size() != 0)) {
+			level = level + 1;
+			if(!(level % 2 == 0)) {
+				this_level.clear();
+				this_level = forSet;
+				forSet.clear();
+				for(v: this_level.items) (!found) {
+					for(w: v.nbrs) ((!X.has(w)) && !found) {
+						if(!pred.hasKey(w)) {
+							forSet.add(w);
+							pred[w] = v;
+						}
+						if(succ.hasKey(w)) {
+							mid = w;
+							found = true;
+						}
+					}
+				}
+			}
+			else {
+				this_level.clear();
+				this_level = revSet;
+				revSet.clear();
+				for(v: this_level.items) (!found){
+					for(w: v.inNbrs) ((!X.has(w)) && !found) {
+						if(!succ.hasKey(w)) {
+							succ[w] = v;
+							revSet.add(w);
+						}
+						if(pred.hasKey(w)) {
+							mid = w;
+							found = true;
+						}
+					}
+				}
+			}
+		}
+		
+		if(!found) {pathFound = false;}
+		else {
+			nodeSeq(G) path;
+			node(G) f = NIL;
+			if(mid != NIL) {f = succ[mid];}
+		
+			while(mid != NIL) {
+				path.push(mid);
+				mid = pred[mid];
+			}
+			while(f != NIL) {
+				path.pushFront(f);
+				f = succ[f];
+			}
+
+			foreach(s: path.items) {X.add(s);}
+			K++;
+			possible--;
+		}
+	}
+
+	return K;
+
+}

@@ -1,0 +1,96 @@
+/*
+G - Expects undirected Graph
+C - approx max Clique
+I - approx max Indepedent Set
+*/
+proc approximation_ramsey (G: graph; C: N_S, I: N_S): int {
+	int i = 1;
+	int flag = 0;
+	N_P <long> color;
+	N_P <long> left;
+	N_P <long> right;
+	N_S stack;
+	G.left = 0;
+	G.right = 0;
+	G.color = 1;
+	for (n: G.nodes) (flag == 0) {
+		flag = 1;
+		stack.add(n);
+	}
+	
+	while (stack.size()>0) {
+		N_S new_stack;
+		new_stack = stack;
+		stack.clear();
+		foreach (n: new_stack.items) {
+			node nb,nnb;
+			flag = 0;
+			foreach(m: n.nbrs) ( m!= n && m.color == n.color) {
+				m.color = 2*n.color;
+				nb = m;
+				flag = 1;
+			}
+			if (flag == 1) { 
+				nb.left = n.left + 1;
+				nb.right = n.right;
+				stack.add(nb);
+			}
+			long col = n.color;
+			flag = 0;
+			n.color = -1;
+			/*foreach(m: G.nodes) (m!=n && m.color == n.color) {
+				m.color = 2*n.color + 1;
+				nnb = m;
+				flag = 1;
+			}*/
+			foreach(m: G.nodes) (m.color == col) {
+				m.color = 2*col + 1;
+				nnb = m;
+				flag = 1;
+			}
+			n.color = col;
+			if (flag == 1) {
+				nnb.left = 0;
+				nnb.right = n.right + 1;
+				stack.add(nnb);
+			}
+		}
+	}
+	
+	node a,b;
+	long left_max = 0;
+	long right_max = 0;
+	foreach (n: G.nodes) {
+		left_max max= n.left ;
+		right_max max= n.right ;
+	}
+	foreach (n: G.nodes) {
+		if (left_max == n.left)
+			a = n;
+		if (right_max == n.right)
+			b = n;
+	}
+	
+	while(a.color % 2 == 0) {
+		C.add(a);
+		node temp;
+		temp = a;
+		foreach (n: temp.nbrs)(n.color == temp.color/2) {
+			a = n;
+		}
+	}
+	C.add(a);
+	flag = 0;
+	
+	while(flag == 0) {
+		I.add(b);
+		flag = 1;
+		node temp;
+		temp = b;
+		foreach (n: G.nodes)(n.color == (temp.color - 1)/2) {
+			b = n;
+			flag = 0;
+		}
+	}
+	return 0;
+}

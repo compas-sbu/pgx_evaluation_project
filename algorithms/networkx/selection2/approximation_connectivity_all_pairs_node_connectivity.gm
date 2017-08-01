@@ -1,0 +1,112 @@
+/*
+ * Compute node connectivity between all pairs of nodes.
+ * Cutoff must be provided for very large graphs.
+ */
+procedure all_pair_node_connectivity(G: graph, cutoff: int; nmap: map<node(G), int>, con: N_P<vect<int>[500]>(G)) {	
+	
+	int id = 0;
+	for(n: G.nodes) {
+		nmap[n] = id;
+		id = id + 1;
+		n.con = +INF;
+	}
+
+	foreach(n: G.nodes) {
+		node(G) source = n;
+		for(r: G.nodes) (r != n){
+			N_S(G) X;
+			node(G) target = r;
+			int possible = 0;
+			if(source.degree() < target.inDegree()) {
+				possible = source.degree();
+			}
+			else {
+				possible = target.inDegree();
+			}
+			int K = 0;
+			//if(possible == 0) {return K;}
+
+			bool pathFound = true;
+			while(possible > 0 && pathFound && K < cutoff) {
+	
+				map<node(G), node(G)> pred;
+				map<node(G), node(G)> succ;
+				pred[source] = NIL;
+				succ[target] = NIL; 
+
+				N_S(G) forSet;
+				N_S(G) revSet;
+				forSet.add(source);
+				revSet.add(target);
+
+				bool found = false;
+				node(G) mid = NIL;
+				int level = 0;
+				int ll =0;
+				N_S(G) this_level;
+				while(!found && (forSet.size() != 0) && (revSet.size() != 0)) {
+					level = level + 1;
+					if(!(level % 2 == 0)) {
+						this_level.clear();
+						this_level = forSet;
+						forSet.clear();
+						for(v: this_level.items) (!found) {
+							for(w: v.nbrs) ((!X.has(w)) && !found) {
+								if(!pred.hasKey(w)) {
+									forSet.add(w);
+									pred[w] = v;
+								}
+								if(succ.hasKey(w)) {
+									mid = w;
+									found = true;
+								}
+							}
+						}
+					}
+					else {
+						this_level.clear();
+						this_level = revSet;
+						revSet.clear();
+						for(v: this_level.items) (!found){
+							for(w: v.inNbrs) ((!X.has(w)) && !found) {
+								if(!succ.hasKey(w)) {
+									succ[w] = v;
+									revSet.add(w);
+								}
+								if(pred.hasKey(w)) {
+									mid = w;
+									found = true;
+								}
+							}
+						}
+					}
+				}
+
+				if(!found) {pathFound = false;}
+				else {
+					nodeSeq(G) path;
+					node(G) f = NIL;
+					if(mid != NIL) {f = succ[mid];}
+
+					while(mid != NIL) {
+						path.push(mid);
+						mid = pred[mid];
+					}
+					while(f != NIL) {
+						path.pushFront(f);
+						f = succ[f];
+					}
+
+					foreach(s: path.items) {X.add(s);}
+					K++;
+					possible--;
+				}
+			}
+			int nT = nmap[target];
+			vect<int>[500] sCon = source.con;
+			sCon[nT] = K;
+			source.con = sCon;
+		}
+	}
+
+}

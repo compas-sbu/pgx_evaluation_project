@@ -1,0 +1,23 @@
+procedure current_flow_closeness(G: graph, n: int, row: nodeProp<vect<double>[n]>, id : nodeProp<int>;
+        closeness: nodeProp<double>) : int {
+
+    G.closeness = 0;
+
+    for(v : G.nodes) {
+        vect<double>[n] vProp = v.row;
+        for(w : G.nodes) {
+            v.closeness = v.closeness + vProp[v.id] - (2*vProp[w.id]);
+            w.closeness = w.closeness + vProp[v.id];
+        }
+    }
+
+/*
+    for(v : G.nodes) {
+        double c = v.closeness;
+        v.closeness = (1 /  c);
+    }
+*/
+
+    return 0;
+
+}

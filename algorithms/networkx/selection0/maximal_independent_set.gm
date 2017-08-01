@@ -1,0 +1,88 @@
+procedure maximal_independent_set(G: graph; maximal_set: nodeProp<bool>, inSet: nodeProp<bool>, isIinSet: nodeProp<bool> ) : int {
+
+    G.maximal_set = false;
+
+    nodeSet(G) G1;
+
+    // Initial set of I'
+    nodeSet(G) S;
+
+    foreach(n: G.nodes) {
+        G1.add(n);
+    }
+
+    while(G1.size() > 0) {
+
+        // 1. Random subet selection
+        // Initial set of I'
+        foreach(n: G1.items) {
+            int c=0;
+
+            foreach(v : n.nbrs) {
+                if(G1.has(v)) c++;
+            }
+
+            if(c == 0) S.add(n);
+
+            else {
+                double random = uniform()*2*c;
+                if(random < 1) {
+                    S.add(n);
+                }
+            }
+        }
+
+
+        // 2. Make I' independent
+
+        foreach(e : G.edges) {
+            if(S.has(e.fromNode()) && S.has(e.toNode())) {
+                node fromNode = e.fromNode();
+                node toNode = e.toNode();
+
+                int c1=0;
+
+                foreach(v : fromNode.nbrs) {
+                    if(G1.has(v)) c1++;
+                }
+
+                int c2=0;
+
+                foreach(v : toNode.nbrs) {
+                    if(G1.has(v)) c2++;
+                }
+
+                if(c1 > c2) {
+                    S.remove(toNode);
+                } else {
+                    S.remove(fromNode);
+                }
+            }
+        }
+
+        // 3. Add I' to I
+        //    Remove I', and neighbours of I' from G1
+
+
+        foreach(n: S.items) {
+
+            n.maximal_set = true;
+            foreach(v: n.nbrs) {
+                if(G1.has(v))
+                    G1.remove(v);
+            }
+
+            foreach(v: n.inNbrs) {
+                if(G1.has(v))
+                    G1.remove(v);
+            }
+
+            if(G1.has(n))
+                G1.remove(n);
+        }
+
+        S.clear();
+    }
+
+    return 0;
+}

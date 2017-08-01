@@ -1,0 +1,60 @@
+procedure assortativity_degree_mixing_dict(G:graph, x:string, y:string; xDeg: map<int, int>, yDeg: map<int, int>, counter: map<int, double>): int
+{
+    N_P<int> id;
+    int i=1;
+    for(n: G.nodes)
+    {
+        n.id=i;
+        i=i+1;
+    }
+    int maxi;
+    maxi=i;
+    if(x=="in")
+    {
+        foreach(n: G.nodes)
+            xDeg[n.id] = n.inDegree();
+    }
+    else if(x=="out")
+    {
+        foreach(n: G.nodes)
+            xDeg[n.id] = n.outDegree();
+    }
+
+    if(y=="in")
+    {
+        foreach(n: G.nodes)
+            yDeg[n.id] = n.inDegree();
+    }
+    else if(y=="out")
+    {
+        foreach(n: G.nodes)
+            yDeg[n.id] = n.outDegree();
+    }
+
+    int a,b,c;
+    for(u: G.nodes)
+    {
+        a=xDeg[u.id];
+        for(v: G.nodes)
+        {
+            b=yDeg[v.id];
+            c=(1000+b)+(10000*(1000+a));
+            counter[c]=0;
+        }
+    }
+    int len=counter.size();
+    int tot=0;
+    for(u: G.nodes)
+    {
+        for(v: u.outNbrs)
+        {
+           a=xDeg[u.id];
+           b=yDeg[v.id];
+           c=(1000+b)+(10000*(1000+a));
+           counter[c]++;
+           tot++;
+        }
+    }
+
+    return tot;
+}

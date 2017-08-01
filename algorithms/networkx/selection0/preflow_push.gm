@@ -1,0 +1,87 @@
+procedure preflow_push(G: graph,  id : nodeProp<int>, n: int, queue_size: int, source : node, sink : node,
+    capacity : edgeProp<int>, MAX_VALUE: int) : int {
+
+    nodeProp<int> excess;
+    nodeProp<int> height;
+
+    edgeProp<int> flow;
+
+    G.excess = 0;
+    G.height = 1;
+
+    G.flow = 0;
+
+    map<int, node> map_id;
+
+    for(v : G.nodes) {
+        map_id[v.id] = v;
+    }
+
+    int s = 0;
+    int e = 0;
+
+    vect<int>[queue_size] queue;
+
+    // initialize
+    source.height = n;
+    source.excess = MAX_VALUE;
+
+    queue[s] = source.id;
+
+    while(s <= e) {
+        node current = map_id[queue[s]];
+        s++;
+
+        int minHeight = MAX_VALUE;
+
+        for(edg : current.outEdges) {
+            node nbr = edg.toNode();
+            if(nbr.height < minHeight && ((edg.capacity - edg.flow) > 0)) {
+                minHeight = nbr.height;
+            }
+        }
+
+        if (minHeight != MAX_VALUE && minHeight >= current.height)
+            current.height = minHeight + 1;
+
+        bool forBreak = false;
+        for(edg : current.outEdges) (!forBreak) {
+            node nbr = edg.toNode();
+            if(nbr.height < current.height) {
+                int pushedFlow = edg.capacity - edg.flow;
+                if(pushedFlow > current.excess) {
+                    pushedFlow = current.excess;
+                }
+                if(pushedFlow > 0) {
+                    edg.flow = edg.flow + pushedFlow;
+
+                    edge backEdg;
+                    for(edge_item : nbr.outEdges) {
+                        if(edge_item.toNode() == current) {
+                            backEdg = edge_item;
+                        }
+                    }
+                    backEdg.flow = backEdg.flow - pushedFlow;
+                    nbr.excess = nbr.excess + pushedFlow;
+                    current.excess = current.excess - pushedFlow;
+
+                    if(!(nbr == source || nbr == sink)) {
+                        e++;
+                        queue[e] = nbr.id;
+                    }
+                    if(current.excess <= 0) {
+                        forBreak = true;
+                    }
+                }
+            }
+        }
+
+        if(current.excess > 0 && !(current == source || current == sink)) {
+            e++;
+            queue[e] = current.id;
+        }
+    }
+
+    return sink.excess;
+
+}

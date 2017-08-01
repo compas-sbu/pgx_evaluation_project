@@ -1,0 +1,106 @@
+procedure find_cliques(G: graph) : int {
+	map<node, int> deg;
+	N_P<N_S>(G) adj;
+	N_P<int> index;
+	N_Q(G) ext_u;
+	N_S(G) adj_u;	
+	N_S(G) subg;
+	N_S(G) cand;
+	N_Q(G) Q;
+	map<int, node> nmap;
+	vect<int>[100000000] stack;
+	int s_top = 0;
+	int s_end = 0;
+	int subg_divider = -1;
+	int cand_divider = -2;
+	int ext_u_divider = -3;
+	collection<N_Q>(G) res_cliques;
+	int clique_divide = -1;
+	int i = 0;
+	
+	for(n: G.nodes) {
+		n.index = i;
+		nmap[i] = n;
+		i++;
+	}
+
+	for(n: G.nodes) {
+		subg.add(n);
+		cand.add(n);
+		deg[n] = n.degree() + n.inDegree();
+		N_S(G) nbrs_t;
+		foreach(r: n.nbrs) {nbrs_t.add(r);}
+		foreach(r: n.inNbrs) {nbrs_t.add(r);}
+		n.adj = nbrs_t;
+	}
+	
+	node(G) u = deg.getMaxKey();
+	adj_u = u.adj;
+	for(r: cand.items) (!adj_u.has(r)) {ext_u.push(r);}
+
+	Q.push(NIL);
+	while(Q.size() > 0 || s_top < s_end) {
+		if(ext_u.size() > 0) {
+			node(G) q = ext_u.popFront();
+			cand.remove(q);
+			if(Q.size() > 0) {Q.pop();}
+			Q.push(q);
+			
+			N_S(G) adj_q = q.adj;
+			N_S(G) subg_q;
+			foreach(r: subg.items) (adj_q.has(r)) {subg_q.add(r);}
+			if(subg_q.size() == 0) {
+				res_cliques.push(Q);
+			}
+			else {
+				N_S(G) cand_q;
+				foreach(r: cand.items) (adj_q.has(r)) {cand_q.add(r);}
+				if(cand_q.size() > 0) {
+					//fix collection
+					//stack.append((subg, cand, ext_u));
+					for(r: subg.items) {stack[s_end] = r.index; s_end++;}
+					stack[s_end] = subg_divider;
+					s_end++;
+					for(r: cand.items) {stack[s_end] = r.index; s_end++;}
+					stack[s_end] = cand_divider;
+					s_end++;
+					for(r: ext_u.items) {stack[s_end] = r.index; s_end++;}
+					stack[s_end] = ext_u_divider;
+					s_end++;
+
+					Q.push(NIL);
+					subg = subg_q;
+					cand = cand_q;
+					map<node, int> u_map;
+					foreach(r: subg.items) {
+						N_S(G) adj_r = r.adj;
+						u_map[r] = count(s: cand.items) (adj_r.has(s));
+					}
+					u = u_map.getMaxKey();
+					adj_u = u.adj;
+					N_Q(G) temp_ext_u;
+					for(r: cand.items) (!adj_u.has(r)) {temp_ext_u.push(r);}
+					ext_u = temp_ext_u;
+				}
+			}
+		}
+		else {
+			Q.popFront();
+			//stack.pop(subg, cand, ext_u)
+			N_S(G) temp_subg;
+			while(stack[s_top] != -1) {temp_subg.add(nmap[stack[s_top]]); s_top++;}
+			s_top++;
+			N_S(G) temp_cand;
+			while(stack[s_top] != -2) {temp_cand.add(nmap[stack[s_top]]); s_top++;}
+			s_top++;
+			N_Q(G) temp_ext_u;
+			while(stack[s_top] != -3) {temp_ext_u.push(nmap[stack[s_top]]); s_top++;}
+			s_top++;
+			
+			subg = temp_subg;
+			cand = temp_cand;
+			ext_u = temp_ext_u;
+		}
+	}
+	return res_cliques.size();
+}

@@ -1,0 +1,43 @@
+/*
+Checks if input graph is bipartite, if graph is Bipartite then it 
+returns two independent bipartite node sets and 2 colors the graph,
+else returns -1.
+*/
+
+proc is_bipartite (G: graph; color: N_P <int>, X: N_S, Y: N_S): int {
+	int r = 0;
+	G.color = -1;
+	
+	for (n: G.nodes)(n.color == -1 && r == 0 ) {
+		n.color = 0;
+		
+		if (n.numNbrs() != 0) {
+			// bfs and color nodes alternatively
+			inBFS (m: G.nodes from n) (r == 0) {
+				// outnbrs iterator
+				foreach (l: m.nbrs) {
+					if (l.color == -1)
+						l.color = 1 - m.color;
+					else if (l.color == m.color)
+						r = -1;
+				}
+				// inNbrs iterator
+				foreach (l: m.inNbrs) (r == 0) {
+					if (l.color == -1)
+						l.color = 1 - m.color;
+					else if (l.color == m.color)
+						r = -1;
+				}
+			}
+		}
+	}
+	// X and Y are two independent Bipartite set
+	if (r == 0) {
+		foreach (n: G.nodes) {
+			if (n.color == 0)
+				X.add(n);
+			else Y.add(n);
+		}
+	}
+	return r;
+}

@@ -1,0 +1,29 @@
+procedure independent_set(G:graph ; ind_set: N_Q(G)){
+   N_S vert;
+   N_Q vert1;
+   N_P<int> num;
+   for(n: G.nodes){
+     vert.add(n);
+     n.num=1;
+     vert1.push(n);
+     }
+
+    node temp;
+    for(v: vert.items)
+    {
+        N_S r;
+        if(vert.size() > 0 && v.num==1)
+        {
+            ind_set.push(v);
+            r.add(v);
+            for(u : v.nbrs){
+              r.add(u);
+            }
+
+            for(s: r.items){
+              s.num=-1;
+            }
+
+        }
+    }
+}

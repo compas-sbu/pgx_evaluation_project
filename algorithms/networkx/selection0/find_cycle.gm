@@ -1,0 +1,71 @@
+procedure find_cycle(G: graph, num: int, id : nodeProp<int>, root : node, ignore : bool;
+     cycleProp : nodeProp<vect<int>[num]>) : int {
+
+    nodeProp<bool> visited;
+    nodeProp<bool> inStack;
+    G.visited = false;
+    G.inStack = false;
+    bool flag = true;
+
+    vect<int>[num] cycle;
+    vect<int>[num] stack;
+    int sp = 0;
+
+    int cc = 0;
+
+    for(t : G.nodes) (!t.visited && flag) {
+
+        inDFS(n : G.nodes from t) [!n.visited && flag] {
+            for(k : n.nbrs) {
+                if(k.visited && k.inStack) {
+                    flag = false;
+                    int i = sp-1;
+                    cycle[0] = n.id;
+                    cc = 1;
+                    while(i >= 0 && stack[i] != k.id) {
+                        cycle[cc] = stack[i];
+                        cc++;
+                        i--;
+                    }
+                    cycle[cc] = k.id;
+                    cc++;
+                }
+            }
+
+            /*
+
+            if(ignore == true && !flag){
+                for(k : n.inNbrs) {
+                    if(k.id != stack[sp-1] && k.visited && k.inStack) {
+                        flag = false;
+                        int i = sp-1;
+                        cycle[0] = n.id;
+                        cc = 1;
+                        while(i >= 0 && stack[i] != k.id) {
+                            cycle[cc] = stack[i];
+                            cc++;
+                            i--;
+                        }
+                        cycle[cc] = k.id;
+                        cc++;
+                    }
+                }
+            }
+
+            */
+
+            n.inStack = true;
+            n.visited = true;
+            stack[sp] = n.id;
+            sp++;
+        }
+
+        inPost {
+            n.inStack = false;
+            sp--;
+        }
+    }
+
+    root.cycleProp = cycle;
+    return cc;
+}

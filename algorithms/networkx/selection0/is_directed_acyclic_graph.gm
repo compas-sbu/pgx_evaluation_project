@@ -1,0 +1,26 @@
+procedure dag_check(G: graph) : bool {
+
+    nodeProp<bool> visited;
+    nodeProp<bool> inStack;
+    G.visited = false;
+    G.inStack = false;
+    bool flag = true;
+
+    for(t : G.nodes) (!t.visited && flag) {
+
+        inDFS(n : G.nodes from t) [!n.visited && flag] {
+            for(k : n.nbrs) {
+                if(k.visited && k.inStack) flag = false;
+            }
+            n.inStack = true;
+            n.visited = true;
+
+        }
+        inPost{
+
+            n.inStack = false;
+        }
+    }
+
+    return flag;
+}

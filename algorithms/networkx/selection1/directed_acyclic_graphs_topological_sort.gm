@@ -1,0 +1,36 @@
+procedure topo_sort(G:graph ; top_order: N_Q(G)){
+    N_P<int>  indeg;
+    int i=0;
+    N_Q q;
+    N_Q output;
+    for(n: G.nodes)
+    {
+        n.indeg = (int)n.inDegree();
+        if(n.indeg==0)
+            q.pushBack(n);
+    }
+
+    int qSize;
+    int temp;
+    int c;
+    qSize = q.size();
+    node u;
+    c=0;
+    while(q.size() > 0)
+    {
+        u=q.pop();
+        output.pushBack(u);
+        for(v: u.nbrs)
+        {
+            v.indeg=v.indeg-1;
+            if(v.indeg==0)
+                q.push(v);
+        }
+        c=c+1;
+    }
+
+    while(output.size() > 0)
+    {
+        top_order.push(output.pop());
+    }
+}

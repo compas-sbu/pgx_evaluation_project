@@ -1,0 +1,31 @@
+/*
+ * Return an approximate maximum independent set
+ */
+procedure approximation_maximum_independent_set(G: graph; L: nodeSet(G)): int {
+	map<node(G), int> deg;
+	nodeSeq(G) seq;
+	
+	for(n: G.nodes) {
+		deg[n] = n.degree();
+	}
+
+	while(deg.size() > 0) {
+		node(G) k = deg.getMaxKey();
+		seq.push(k);
+		deg.remove(k);
+	}	
+
+	nodeSet(G) S;
+	
+	for(n: seq.items) {
+		int update = 0;
+		if(S.size() > 0) {
+			update = sum(r: S.items){count(s: r.nbrs)(s == n)};
+		}
+		if(update == 0) {
+			S.add(n);
+			L.add(n);
+		}
+	}
+	return S.size();
+}

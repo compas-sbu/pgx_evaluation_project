@@ -1,0 +1,105 @@
+procedure edmondskarp(G: graph, id : nodeProp<int>, n : int, source : node, sink : node;
+    capacity: edgeProp<int>) : int {
+
+    bool terminate = false;
+    // nodeProp<node> parent;
+
+    map<int, node> map_id;
+    nodeProp<bool> visited;
+    nodeProp<int> parent;
+    nodeProp<edge> parent_edge;
+
+    for(v : G.nodes) {
+        map_id[v.id] = v;
+    }
+
+    int max_flow = 0;
+
+    while(!terminate) {
+
+        vect<int>[n] queue;
+
+        queue[0] = source.id;
+        G.visited = false;
+        G.parent = -1;
+        source.visited = true;
+
+
+        int s = 0;
+        int e = 0;
+
+        // BFS
+        while(s <= e) {
+
+            node current = map_id[queue[s]];
+            s++;
+
+            for(edg : current.outEdges) {
+                node v = edg.toNode();
+                if(!v.visited && edg.capacity > 0) {
+                    e++;
+                    queue[e] = v.id;
+                    v.visited = true;
+                    v.parent = current.id;
+                    v.parent_edge = edg;
+                }
+            }
+        }
+
+        //terminate = true;
+
+
+        // minimum capacity on the path
+        if(sink.parent == -1) {
+            terminate = true;
+        } else {
+
+            int min_capacity = 0;
+            int traverse = sink.id;
+            node traverse_node = map_id[traverse];
+
+            while(traverse != source.id) {
+
+                traverse_node = map_id[traverse];
+
+                if(traverse == sink.id) {
+                    edge traverse_edge = sink.parent_edge;
+                    min_capacity = traverse_edge.capacity;
+                } else {
+                    edge traverse_edge = traverse_node.parent_edge;
+                    if(min_capacity > traverse_edge.capacity) {
+                        min_capacity = traverse_edge.capacity;
+                    }
+                }
+                traverse = traverse_node.parent;
+
+            }
+
+
+            max_flow = max_flow + min_capacity;
+
+            //max_flow = min_capacity;
+            //terminate = true;
+
+            traverse = sink.id;
+            while(traverse != source.id) {
+
+                traverse_node = map_id[traverse];
+                edge traverse_edge = traverse_node.parent_edge;
+                traverse_edge.capacity = traverse_edge.capacity - min_capacity;
+                node fromNode = traverse_edge.fromNode();
+                for(outEdg : traverse_node.outEdges) {
+                    if(outEdg.toNode() == fromNode) {
+                        outEdg.capacity = outEdg.capacity + min_capacity;
+                    }
+                }
+                traverse = traverse_node.parent;
+
+            }
+
+        }
+    }
+
+    return max_flow;
+
+}

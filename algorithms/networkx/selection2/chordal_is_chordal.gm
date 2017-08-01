@@ -1,0 +1,76 @@
+/*
+ * Checks whether G is a chordal graph.
+ * Returns a boolean value accordingly
+ */
+procedure chordal_is_chordal(G: graph, s: node) : bool {
+	N_S(G) unnumbered;
+	N_S(G) numbered;
+	int current_treewidth = -1;
+	N_S(G) triplet;
+
+	foreach(n: G.nodes) (n != s) {unnumbered.add(n);}
+	numbered.add(s);
+
+	while(unnumbered.size() > 0) {
+		//max_cardinality_node
+		map<node, int> max_car;
+		foreach(x: unnumbered.items) {
+			max_car[x] = count(r: x.nbrs) (numbered.has(r));
+		}
+		node(G) v = max_car.getMaxKey();
+
+		unnumbered.remove(v);
+		numbered.add(v);
+		N_S(G) clique;
+		foreach(r: v.nbrs) (numbered.has(r)) {clique.add(r);}
+
+		//sg = subgraph(clique) & check if complete
+		bool is_complete = false;
+		if(clique.size() < 2) {
+			is_complete = true;
+		}
+		else {
+			int clique_edges = 0;
+			for(r: clique.items) {
+				clique_edges += count(t: r.nbrs) (clique.has(t));
+			}
+			int n_clique = clique.size();
+			int max_edges = n_clique*(n_clique-1);
+			is_complete = clique_edges == max_edges;
+		}
+
+		if(is_complete) {
+//			if(true) {return -1;}
+			if(current_treewidth < clique.size()) {
+				current_treewidth = clique.size();
+			}
+		}
+		else {
+			//find_missing_edge()
+			//edge(G) missing;
+			N_S(G) missing_edge;
+			N_S(G) g_nodes = clique;
+
+			bool missing_found = false;
+			for(r: g_nodes.items) (!missing_found) {
+				N_S(G) missing_nodes;
+				missing_nodes = g_nodes;
+				missing_nodes.remove(r);
+				foreach(m: r.nbrs) (g_nodes.has(m)) {missing_nodes.remove(m);}
+				if(missing_nodes.size() > 0) {
+					//missing = edge(r, missing_nodes.popFront());
+					missing_edge.add(r);
+					node(G) w;
+					foreach(u: missing_nodes.items) {w = u;}
+					missing_edge.add(w);
+					missing_found = true;
+				}
+			}
+			
+			foreach(r: missing_edge.items) {triplet.add(r);}
+			triplet.add(v);
+			return false;
+		}
+	}
+	return true;
+}
