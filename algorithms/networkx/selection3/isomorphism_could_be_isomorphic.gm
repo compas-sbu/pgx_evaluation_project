@@ -1,0 +1,136 @@
+procedure could_be_isomorphic(G1: graph, G2: graph): bool {
+	N_P<int>(G1) triangles;
+	N_P<int>(G2) triangles;
+	N_P<int>(G1) num_cliques;
+	N_P<int>(G2) num_cliques;
+	
+	if(G1.numNodes() != G2.numNodes()) {return false;}
+	
+	int t = 0;
+	for(n: G1.nodes) {
+		t = tr_counting(G1, n);
+		n.triangles = t;
+	}
+	for(n: G2.nodes) {
+		t = tr_counting(G2, n);
+		n.triangles = t;
+	}
+	t = 0;
+	for(n: G1.nodes) {
+		t = enumerate_cliques(G1);
+		n.num_cliques = t;
+	}
+	for(n: G2.nodes) {
+		t = enumerate_cliques(G2);
+		n.num_cliques = t;
+	}
+
+	N_S(G1) G1_nodes;
+	foreach(n: G1.nodes) {G1_nodes.add(n);}
+	for(u: G2.nodes) {
+		for(v: G1.nodes) (G1_nodes.has(v)) {
+			if(u.degree() == v.degree() && 
+				u.triangles == v.triangles &&
+				u.num_cliques == v.num_cliques) {
+				G1_nodes.remove(v);
+			}
+		}
+	}
+
+	return G1_nodes.size() == 0; 
+}
+
+local tr_counting(G: graph, u: node): int {
+	int T = 0;
+	foreach(v: u.nbrs) (v > u) {
+		foreach(w: u.nbrs) (w > v) {
+			if ((v.hasEdgeTo(w))) {
+				T++;
+			}
+		}
+	}
+	return T;
+}
+
+local enumerate_cliques(G: graph) : int {
+	N_P<N_Q>(G) nbrs_t;
+	N_P<int> index;
+	G.index = -1;
+	vect<int>[10000] base;
+	vect<int>[10000] cnbrs;
+	int b_top = 0;
+	int b_end = 0;
+	int c_top = 0;
+	int c_end = 0;
+	map<int, node> nmap;
+	N_O(G) seen;
+	int res_cliques = 0;
+	//collection<N_Q>(G) res_cliques;
+	int i = 0;
+
+	/*seen contains node order, i.e index{}
+	  each node has nbrs_t => nbrs in order of seen	
+	*/
+	for(n: G.nodes) {
+		n.index = i;
+		nmap[i] = n;
+		seen.push(n);
+		N_O(G) all_nbrs;
+		for(r: n.nbrs) {all_nbrs.push(r);}
+		for(r: n.inNbrs) {all_nbrs.push(r);}
+
+		N_Q(G) t;
+		for(r: all_nbrs.items) (r.index == -1) {
+			t.push(r);
+		}
+		n.nbrs_t = t;
+		i++;
+	}
+	/*create base{} and cnbrs{} analogous to networkx
+	  seen=>base & nbrs_t=>cnbrs initially
+	  create queue of node with base and cnbrs
+	*/
+	for(n: seen.items) {
+		base[b_end] = n.index;
+		b_end++;
+		base[b_end] = -1;
+		b_end++;
+		N_Q(G) c = n.nbrs_t;
+		for(r: c.items) {int x = r.index; cnbrs[c_end] = x; c_end++;}
+		cnbrs[c_end] = -1;
+		c_end++;
+	}
+	int it = 0;
+	while(b_top < b_end) {
+		N_Q(G) base_t;
+		while(base[b_top] != -1) {base_t.push(nmap[base[b_top]]); b_top++;}
+		b_top++;
+		N_O(G) cnbrs_t;
+		while(cnbrs[c_top] != -1) {cnbrs_t.push(nmap[cnbrs[c_top]]); c_top++;}
+		c_top++;
+		N_O(G) seen_cnbrs;
+		
+		res_cliques++;
+		//res_cliques.push(base_t);	//stores all found cliques
+		if(cnbrs_t.size() > 0) {
+			for(u: cnbrs_t^.items) {
+				base_t.push(u);
+				seen_cnbrs.push(u);
+				N_O(G) temp_cnbrs;
+				N_Q(G) unbrs_t = u.nbrs_t;
+				for(v: unbrs_t.items) (!seen_cnbrs.has(v) && cnbrs_t.has(v)) {
+					temp_cnbrs.push(v);
+				}
+				for(r: base_t.items) {base[b_end] = r.index; b_end++;}
+				base[b_end] = -1;
+				b_end++;
+				for(r: temp_cnbrs.items) {cnbrs[c_end] = r.index; c_end++;}
+				cnbrs[c_end] = -1;
+				c_end++;
+				base_t.popBack();
+			}
+		}
+		it++;
+	}
+	return res_cliques;
+}

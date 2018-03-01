@@ -1,0 +1,46 @@
+procedure euler (G: graph): bool {
+	bool flag = true;
+	foreach(n: G.nodes) (flag) {
+		if (n.inDegree() != n.outDegree())
+			flag = false;
+	}
+	
+	return flag && (kosaraju(G) == 1);
+}
+
+local kosaraju (G: graph) : long {
+
+	// Initialize SCCbership
+	N_P<long> SCC;
+	G.SCC = -1;
+
+	N_P<bool> Checked;
+	G.Checked = false;
+
+	// [Phase 1]
+	// Obtain reverse-post-DFS-order of node sequence.
+	// nodeOrder can be also used here but nodeSeq is faster
+	nodeSeq Seq; 
+	for(t:G.nodes) (!t.Checked) {
+		inDFS(n:G.nodes from t)[!n.Checked] 
+		{} // do nothing at pre-visit
+		inPost{ // check at post-visit
+			n.Checked = true;
+			Seq.pushFront(n);
+		}
+	}
+
+	// [Phase 2]
+	// Starting from each node in the sequence
+	//   do BFS on the transposed graph G^.
+	//   and every nodes that are (newly) visited compose one SCC.
+	long compId = 0;
+	for (t:Seq.items) (t.SCC == -1) {
+		inBFS(n:G.nodes from t using outEdges) [n.SCC == -1] {
+			n.SCC = compId;
+		}
+		compId++;
+	}
+
+	return compId;
+}

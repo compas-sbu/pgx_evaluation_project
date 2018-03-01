@@ -1,0 +1,5 @@
+procedure volume(G: graph, S: N_S): int {
+	int volume = 0;
+	for(n: S.items) {volume += (n.outDegree() + n.inDegree());}
+	return volume;
+}

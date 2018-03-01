@@ -1,0 +1,30 @@
+proc bipartite_redundancy (G: graph; redundancy: N_P<double> ): int {
+	int flag = 0;
+	foreach (n : G.nodes)(flag == 0) {
+		if (n.numNbrs()< 2)
+			flag = -1;
+	}
+	
+	foreach (n: G.nodes)(flag == 0) {
+		int l = n.numNbrs();
+		int s = 0;
+		
+		for (u: n.nbrs) {
+			N_S unbrs;
+			//s += 1;
+			foreach (x: u.nbrs) (x!=n)
+				unbrs.add(x);
+			//s += unbrs.size();
+			for (w: n.nbrs) (w > u) {
+				bool common;
+				common = any(x: w.nbrs){unbrs.has(x)};
+				if (common)
+					s+=1;
+			}
+		}
+		n.redundancy =  2 * s /((l * (l-1) ) + 0.0);
+		//n.redundancy = s;
+	}
+	return flag;
+}
+

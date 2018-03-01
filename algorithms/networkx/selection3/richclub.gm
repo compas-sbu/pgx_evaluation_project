@@ -1,0 +1,133 @@
+procedure euler (G: graph; rc: map<int, double>): int {
+	
+	iVect[100] deghist;
+	deghist = 0;
+	int max_value = 0;
+	int total = 0;
+	for(n: G.nodes) {
+		int deg = n.degree();
+		deghist[deg] += 1;
+		if(max_value < deg )
+			max_value = deg;
+		total += 1;
+	}
+	// Crashing here
+	//if (max_value == 0){
+	//	return 0;
+	//}
+	iVect[max_value] nks;
+	
+	int i = 0;
+	int curr = 0;
+	int end = 0;
+	while(i<max_value) {
+		curr += deghist[i];
+		//rc[i] = deghist[i];
+		if (total - curr > 1) {
+			nks[i] = total - curr;
+			//rc[i] = nks[i];
+		}
+		else{
+			end = i;
+			i = max_value;
+		}
+		i += 1;
+		
+	}
+	if (end != 0)
+		max_value = end;
+	edgeSeq ed;
+	
+	for(e:G.edges)
+		ed.pushBack(e);
+	
+	// Sorting Ed
+	
+	i = 0;
+	int n = ed.size();
+	while(i<n) {
+		int min_degree = n+1;
+		int min_index = 0;
+		edge curr_edge;
+		int j = 0;
+		while(j < n) {
+			curr_edge = ed.popFront();
+			if(j < n-i) {
+				node n1 = curr_edge.fromNode();
+				node n2 = curr_edge.toNode();
+				int d1 = n1.degree();
+				int d2 = n2.degree();
+				if (d1 <= d2) {
+					if (min_degree > d1) {
+						min_degree = d1;
+						min_index = j;
+					}
+				}
+				else {
+					if (min_degree > d2) {
+						min_degree = d2;
+						min_index = j;
+					}
+				}
+			}
+			ed.pushBack(curr_edge);
+			j += 1;
+		}
+
+		j = 0;
+		while(j < n) {
+			if (j==min_index) 
+				curr_edge = ed.popFront();
+			else
+				ed.pushBack(ed.popFront());
+			j += 1;
+		}
+
+		ed.pushBack(curr_edge);
+
+		i += 1;
+	}
+	
+	/*
+	// Printint edge values
+	i = 0;
+	for (e:ed.items) {
+		node nk1 = e.fromNode();
+		node nk2 = e.toNode();
+		int k1 = nk1.degree();
+		int k2 = nk2.degree();
+		if (k2 <= k1) 
+			k1 = k2;
+		rc[i] = k1;
+		i = i + 1;
+	}
+	*/
+	
+	int ek = (int)G.numEdges();
+	edge k1_k2 = ed.popFront();
+	
+	node nk1 = k1_k2.fromNode();
+	node nk2 = k1_k2.toNode();
+	int k1 = nk1.degree();
+	int k2 = nk2.degree();
+	if (k2 <= k1) {
+		k1 = k2;
+	}
+	i = 0;
+	while(i < max_value) {
+		while(k1 <= i && ek > 1) {
+			k1_k2 = ed.popFront();
+			nk1 = k1_k2.fromNode();
+			nk2 = k1_k2.toNode();
+			k1 = nk1.degree();
+			k2 = nk2.degree();
+			if (k2 <= k1){
+				k1 = k2;
+			}
+			ek = ek - 1;
+		}
+		rc[i] = ek / ((nks[i]) * (nks[i] - 1.0));
+		i += 1;
+	}
+	return (int) G.numEdges();
+}

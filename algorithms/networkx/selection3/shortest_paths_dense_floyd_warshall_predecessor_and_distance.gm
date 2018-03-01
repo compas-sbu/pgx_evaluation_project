@@ -1,0 +1,53 @@
+procedure shortest_paths(
+	G: graph, vid: N_P<int>; 
+	dist: N_P<vect<int>[100]>, pred: N_P<vect<int>[100]>): int {
+	 	
+	foreach (n: G.nodes) {
+		n.dist = +INF;
+		n.pred = -1;
+		iVect [100] d;
+		d = n.dist;
+		d[n.vid] = 0;
+		n.dist = d;
+	}
+	
+	for (e: G.edges) {
+		node u = e.fromNode();
+		node v = e.toNode();
+		iVect [100] d;
+		d = u.dist;
+		d[v.vid] = 1;
+		u.dist = d;
+
+		iVect [100] p;
+		p = u.pred;
+		p[v.vid] = u.vid;
+		u.pred = p;
+	}
+
+	for (w: G.nodes) {
+		iVect [100] w_d;
+		w_d = w.dist;
+		iVect [100] w_p;
+		w_p = w.pred;
+		for (u: G.nodes) {
+			iVect [100] u_d;
+			u_d = u.dist;
+			iVect [100] u_p;
+			u_p = u.pred;
+			for (v: G.nodes) {
+				if (u_d[w.vid] != +INF && w_d[v.vid] != +INF && u_d[v.vid] > u_d[w.vid] + w_d[v.vid]) {
+					u_d[v.vid] = u_d[w.vid] + w_d[v.vid];
+					u_p[v.vid] = w_p[v.vid];
+				}
+			}
+			u.dist = u_d;
+			u.pred = u_p;
+		}
+		w.dist = w_d;
+		w.pred = w_p;
+	}
+	
+	return 0;
+  
+}

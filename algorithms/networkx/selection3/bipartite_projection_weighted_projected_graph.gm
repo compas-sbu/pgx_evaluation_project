@@ -1,0 +1,31 @@
+proc bipartite_projection (G: graph, N: N_S, r: bool, r_w: node; s: N_Q, d: N_Q, weight: N_P<vect<float>[100]>): int {
+	int i = 0;
+	fVect[100] tmp_w;
+	float n_top = G.numNodes() - N.size();
+	for (u: N.items) {
+		N_S nbrs2;
+		N_S unbrs;
+		foreach (unbr: u.nbrs) {
+			unbrs.add(unbr);
+			foreach(v: unbr.nbrs) (v!=u)
+				nbrs2.add(v);
+		}
+		
+		for(v: nbrs2.items){
+			int common = 0;
+			for(x: v.inNbrs)(unbrs.has(x)) {
+				common += 1;
+			}
+			
+			s.pushBack(u);
+			d.pushBack(v);
+			if (!r)
+				tmp_w[i] = common;
+			else tmp_w[i] = common/n_top;
+			i += 1;
+		}
+	}
+	r_w.weight = tmp_w;
+	return 0;
+}
+

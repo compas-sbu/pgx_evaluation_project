@@ -1,0 +1,19 @@
+procedure mixing_expansion(G: graph, S: N_S): double {
+	N_S T;
+	for(n: G.nodes) (!S.has(n)) {T.add(n);}
+	double num_cut_edges = cut_size(G, S);
+	double mix_exp = num_cut_edges / (2*G.numEdges());
+	
+	return mix_exp;
+}
+
+local cut_size(G: graph, S: N_S): double {
+	N_S T;
+	int c_size = 0;
+	for(n: G.nodes) (!S.has(n)) {T.add(n);}
+	for(n: S.items) {
+		for(s: n.nbrs) (T.has(s)) {c_size++;}
+		for(s: n.inNbrs) (T.has(s)) {c_size++;}
+	}
+	return c_size;
+}

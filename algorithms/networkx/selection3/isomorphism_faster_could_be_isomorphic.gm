@@ -1,0 +1,15 @@
+procedure faster_could_be_isomorphic(G1: graph, G2: graph): bool {
+	
+	if(G1.numNodes() != G2.numNodes()) {return false;}
+	
+	set<int> d1;
+	set<int> d2;
+	for(n: G1.nodes) {d1.add(n.degree());}
+	for(n: G2.nodes) {d2.add(n.degree());}
+	
+	for(i: d1.items) (d2.has(i)) {d2.remove(i);}
+	if(d2.size() != 0) {return false;}
+
+	return true;
+
+}

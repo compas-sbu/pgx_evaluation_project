@@ -1,0 +1,32 @@
+procedure conductance(G: graph, S: N_S): double {
+	N_S T;
+	for(n: G.nodes) (!S.has(n)) {T.add(n);}
+	double num_cut_edges = cut_size(G, S);
+	double vol_S = volume(G, S);
+	double vol_T = volume(G, T);
+	double min_vol = 1;
+	if(vol_S < vol_T)
+		min_vol = vol_S;
+	else
+		min_vol = vol_T;
+	double con = num_cut_edges / min_vol;
+	
+	return con;
+}
+
+local cut_size(G: graph, S: N_S): double {
+	N_S T;
+	int c_size = 0;
+	for(n: G.nodes) (!S.has(n)) {T.add(n);}
+	for(n: S.items) {
+		for(s: n.nbrs) (T.has(s)) {c_size++;}
+		for(s: n.inNbrs) (T.has(s)) {c_size++;}
+	}
+	return c_size;
+}
+
+local volume(G: graph, S: N_S): double {
+	int volume = 0;
+	for(n: S.items) {volume += (n.outDegree() + n.inDegree());}
+	return volume;
+}

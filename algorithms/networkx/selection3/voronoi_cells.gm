@@ -1,0 +1,28 @@
+procedure voronoi_cels(G: graph, S:N_S; dist: N_P<int>, nearest_node: N_P<node>): int {
+	 
+	foreach (n: G.nodes) {
+		n.dist = +INF;
+		n.nearest_node = n;
+	}
+	
+	for(s: S.items) {
+		s.dist = 0;
+	}
+
+	int updates = 0;
+	do {
+		updates = 0;
+		foreach (n: G.nodes) {
+			for (v: n.inNbrs) {
+				if (v.dist != +INF && v.dist + 1 < n.dist) {
+					n.dist = v.dist + 1;
+					n.nearest_node = v.nearest_node;
+					updates = 1;
+				}
+			}
+		}
+	} while (updates!=0);
+   
+	return 0;
+  
+}

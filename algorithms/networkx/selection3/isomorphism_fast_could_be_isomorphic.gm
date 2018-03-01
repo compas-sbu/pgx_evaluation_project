@@ -1,0 +1,66 @@
+procedure fast_could_be_isomorphic(G1: graph, G2: graph): bool {
+	N_P<int>(G1) triangles;
+	N_P<int>(G2) triangles;
+	int t = 0;
+	for(n: G1.nodes) {
+		t = tr_counting(G1, n);
+		n.triangles = t;
+	}
+	for(n: G2.nodes) {
+		t = tr_counting(G2, n);
+		n.triangles = t;
+	}
+	
+	if(G1.numNodes() != G2.numNodes()) {return false;}
+
+	N_S(G1) G1_nodes;
+	foreach(n: G1.nodes) {G1_nodes.add(n);}
+	for(u: G2.nodes) {
+		for(v: G1.nodes) (G1_nodes.has(v)) {
+			if(u.degree() == v.degree() && u.triangles == v.triangles) {
+				G1_nodes.remove(v);
+			}
+		}
+	}
+
+	return G1_nodes.size() == 0; 
+/*
+	collection<seq<int>> props1;
+	collection<seq<int>> props2;
+	for(n: G1.nodes) {
+	//	int deg = n.degree();
+	//	if(props1.hasKey(deg)) {t_set = props1[deg];}
+	//	props1[deg] = t_set;
+		seq<int> t_set;
+		t_set.push(n.degree());
+		t_set.push(n.triangles);
+		props1.pushBack(t_set);
+	}
+	int r = 0;
+	for(n: G2.nodes) {
+		seq<int> t_set;
+		t_set.push(n.degree());
+		t_set.push(n.triangles);
+		props2.pushBack(t_set);
+		if(t_set.isSubsetOf(props2)) {r = -1;}
+	}
+	return r==-1;
+	/*
+	if(props1.size() != props2.size()) {return false;}
+	for(c: props1.items) (c.isSubsetOf(props2)) {props2.remove(c);}
+	if(props2.size() != 0) {return false;}
+	return true;
+	*/
+}
+
+local tr_counting(G: graph, u: node): int {
+	int T = 0;
+	foreach(v: u.nbrs) (v > u) {
+		foreach(w: u.nbrs) (w > v) {
+			if ((v.hasEdgeTo(w))) {
+				T++;
+			}
+		}
+	}
+	return T;
+}

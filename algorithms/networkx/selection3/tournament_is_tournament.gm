@@ -1,0 +1,15 @@
+procedure is_tournament(G: graph): bool {
+	bool res = true;
+	foreach(u: G.nodes) {
+		foreach(v: G.nodes) (v != u) {
+			if(!(!(u.hasEdgeTo(v) && v.hasEdgeTo(u)) && (u.hasEdgeTo(v) || v.hasEdgeTo(u)))) {res = false;}
+			if(!(u.hasEdgeTo(v) ^ v.hasEdgeTo(u))) {res = false;}
+		}
+	}
+	foreach(u: G.nodes) {
+		foreach(v: G.nodes) (v == u) {
+			if(u.hasEdgeTo(v) || v.hasEdgeTo(u)) {res = false;}
+		}
+	}
+	return res;
+}

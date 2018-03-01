@@ -1,0 +1,27 @@
+procedure is_reachable(G: graph, s: node, t: node): bool {
+	for(v: G.nodes) {
+		N_S nbrhood;
+		two_neighborhood(G, v, nbrhood);
+		if((is_closed(G, nbrhood) && nbrhood.has(s) && !nbrhood.has(t))) {
+			return false;
+		}
+	}
+	return true;
+}
+
+local two_neighborhood(G: graph, v: node; nbrhood: N_S) {
+	nbrhood.add(v);
+	foreach(n: v.nbrs) {nbrhood.add(n);}
+	foreach(u: v.nbrs) {
+		foreach(n: G.nodes) (u != v && u.hasEdgeTo(n)) {nbrhood.add(n);}
+	}
+}
+
+local is_closed(G: graph, n_set: N_S): bool {
+	N_S closed;
+	for(v: n_set.items) {
+		for(u: G.nodes) (!n_set.has(v) && u.hasEdgeTo(v)) {closed.add(u);}
+	}
+
+	return (closed.size() == (G.numNodes() - n_set.size()));
+}

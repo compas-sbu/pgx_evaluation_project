@@ -1,0 +1,17 @@
+proc bipartite_projection (G: graph, N: N_S ; s: N_Q, d: N_Q): int {
+	
+	for (u: N.items) {
+		N_S nbrs2;
+		foreach (unbrs: u.nbrs) {
+			foreach(v: unbrs.nbrs) (v!=u)
+				nbrs2.add(v);
+		}
+		
+		for(v: nbrs2.items){
+			s.pushBack(u);
+			d.pushBack(v);
+		}
+	}
+	return 0;
+}
+

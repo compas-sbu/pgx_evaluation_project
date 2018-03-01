@@ -1,0 +1,9 @@
+procedure node_expansion(G: graph, S: N_S): double {
+	N_S node_bdy;
+	for(n: S.items) {
+		for(s: n.nbrs) {node_bdy.add(s);}
+		for(s: n.inNbrs) {node_bdy.add(s);}
+	}
+
+	return (node_bdy.size() / S.size());
+}

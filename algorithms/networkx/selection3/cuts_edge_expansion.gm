@@ -1,0 +1,24 @@
+procedure edge_expansion(G: graph, S: N_S): double {
+	N_S T;
+	for(n: G.nodes) (!S.has(n)) {T.add(n);}
+	double num_cut_edges = cut_size(G, S);
+	double min_size;
+	if(S.size() < T.size())
+		min_size = S.size();
+	else
+		min_size = T.size();
+	double edge_exp = num_cut_edges / min_size;
+	
+	return edge_exp;
+}
+
+local cut_size(G: graph, S: N_S): double {
+	N_S T;
+	int c_size = 0;
+	for(n: G.nodes) (!S.has(n)) {T.add(n);}
+	for(n: S.items) {
+		for(s: n.nbrs) (T.has(s)) {c_size++;}
+		for(s: n.inNbrs) (T.has(s)) {c_size++;}
+	}
+	return c_size;
+}
