@@ -1,0 +1,210 @@
+procedure lang_change_sparse_vect(G: graph,
+	random_friends_nodes: N_S;
+	node_id: N_P<int>,
+	isWord: N_P<bool>,
+	friends_count: N_P<int>,
+	random_nbrs: N_P<iVect[400]>(G),
+	rnbrs_len: N_P<int>,
+	topic_0: E_P<double>,
+	topic_1: E_P<double>,
+	topic_2: E_P<double>): double {
+	
+	/*** Input
+	 *
+	 * G - friends network
+	 * random_friends_nodes - node set of nodes in random network
+	 */
+
+	/*** Node Properties
+	 *
+	 * G.user_id - node user_id
+	 * G.isWord - node type word/user
+	 * G.friends_count - no. of actual nbrs
+	 * G.average(_0, _1, _2) - for words
+	 * G.variance(_0, _1, _2) - for words
+	 * G.random_nbrs - set of random friends in random network
+	 * G.rnbrs_len - no. of random friends in random network
+	 * G.tt_x_tf - cos sim calc helper for words
+	 * G.tt_x_tr - cos sim calc helper for words
+	 * G.tt_2 - cos sim calc helper for words
+	 * G.tf_2 - cos sim calc helper for words
+	 * G.tr_2 - cos sim calc helper for words
+	 */
+
+	/*** Edge Properties
+	 *
+	 * topic(_0, _1, _2) - passed as input
+	 * norm_topic(_0, _1, _2) - normalized topic
+	 * friends_avg - average value of word usage among friends
+	 * random_friends_avg - average value of word usage among random friends
+	 * delta_tt - track delta_tt for a particular user-word edge
+	 * delta_tt - track delta_tf for a particular user-word edge
+	 * delta_tt - track delta_tr for a particular user-word edge
+	 */
+
+	int num_words = 26515;
+	double num_users = 106220;
+	N_P<double> average_0;
+	N_P<double> average_1;
+	N_P<double> average_2;
+	N_P<double> variance_0;
+	N_P<double> variance_1;
+	N_P<double> variance_2;
+	E_P<double> norm_topic_0;
+	E_P<double> norm_topic_1;
+	E_P<double> norm_topic_2;
+
+	map<int, node> id_map;
+	for(n: G.nodes) {
+		id_map[n.node_id] = n;
+	}
+	N_S(G) delete_list_nodes;
+	N_S(G) delete_mask;
+
+	// average and variance of word use
+	for(n: G.nodes) (n.isWord) {
+		double temp_0 = 0.0D;
+		double temp_1 = 0.0D;
+		double temp_2 = 0.0D;
+		
+		temp_0 = sum(e: n.outEdges) (e.topic_0 < 1) {e.topic_0};
+		temp_1 = sum(e: n.outEdges) (e.topic_1 < 1) {e.topic_1};
+		temp_2 = sum(e: n.outEdges) (e.topic_2 < 1) {e.topic_2};
+		
+		n.average_0 = temp_0/num_users;
+		n.average_1 = temp_1/num_users;
+		n.average_2 = temp_2/num_users;
+		
+		temp_0 = 0.0D;
+		temp_1 = 0.0D;
+		temp_2 = 0.0D;
+		
+		temp_0 = sum(e: n.outEdges) (e.topic_0 < 1) {pow((e.topic_0 - n.average_0), 2)};
+		temp_1 = sum(e: n.outEdges) (e.topic_1 < 1) {pow((e.topic_1 - n.average_1), 2)};
+		temp_2 = sum(e: n.outEdges) (e.topic_2 < 1) {pow((e.topic_2 - n.average_2), 2)};
+		
+		n.variance_0 = sqrt(temp_0/num_users);
+		n.variance_1 = sqrt(temp_1/num_users);
+		n.variance_2 = sqrt(temp_2/num_users);
+		
+		if(n.variance_0 == 0 ||
+		   n.variance_1 == 0 ||
+		   n.variance_2 == 0) {delete_list_nodes.add(n);}
+	}
+
+	// Normalize edge topics
+	for(n: G.nodes) (n.isWord && !delete_list_nodes.has(n)) {
+		foreach(e: n.outEdges) {
+			e.norm_topic_0 = (e.topic_0 - n.average_0)/n.variance_0;
+			e.norm_topic_1 = (e.topic_1 - n.average_1)/n.variance_1;
+			e.norm_topic_2 = (e.topic_2 - n.average_2)/n.variance_2;
+		}
+	}
+	
+	// topic avg
+	E_P<double> friends_avg;
+	E_P<double> random_friends_avg;
+	G.friends_avg = 0.0D;
+	G.random_friends_avg = 0.0D;
+	N_P<N_Q>(G) random_nbrs_q;
+
+	// set random nbrs
+	for(n: G.nodes) /*(random_friends_nodes.has(n))*/ {
+		int rc = 0;
+		iVect[400] temp_vect = n.random_nbrs;
+		N_Q(G) rnbrs_set;
+		while(rc < n.rnbrs_len) {
+			node(G) v;
+			v = id_map[temp_vect[rc]];
+			rnbrs_set.pushBack(v);
+			rc++;
+		}
+		n.random_nbrs_q = rnbrs_set;
+		rnbrs_set = n.random_nbrs_q;
+	}
+
+	for(n: G.nodes) (n.isWord && !delete_list_nodes.has(n)) {
+		foreach(e: n.outEdges) /*(random_friends_nodes.has(e.toNode()))*/ {
+			node u = e.toNode();
+			double temp = 0.0D;
+			
+			temp = sum(s: n.outEdges) (u.hasEdgeTo(s.toNode())) 
+					{s.norm_topic_2};
+			e.friends_avg = temp/u.friends_count;
+			
+			temp = 0.0D;
+			N_Q(G) rnbrs_q;
+			rnbrs_q = u.random_nbrs_q;
+			temp = sum(s: n.outEdges) (rnbrs_q.has(s.toNode())) 
+					{s.norm_topic_2};
+			e.random_friends_avg = temp/u.rnbrs_len;
+		}
+	}
+
+	E_P<double> delta_tt;
+	E_P<double> delta_tf;
+	E_P<double> delta_tr;
+	G.delta_tt = 0.0D;
+	G.delta_tf = 0.0D;
+	G.delta_tr = 0.0D;
+
+	for(n: G.nodes) (n.isWord && !delete_list_nodes.has(n)) {
+		foreach(e: n.outEdges) {
+			node u = e.toNode();
+			e.delta_tt = e.norm_topic_1 - e.norm_topic_0;
+			e.delta_tf = e.friends_avg - e.norm_topic_0;
+			e.delta_tr = e.random_friends_avg - e.norm_topic_0;
+			if(u.friends_count < 6)
+				delete_mask.add(u);
+		}
+	}
+
+    // cosine_sim func
+	int topic_counter5 = 0;
+	set<double> cos_sim;
+	set<double> cos_sim_r;
+	double cos_temp = 0.0D;
+	double cos_r_temp = 0.0D;
+	N_P<double> tt_x_tf;
+	N_P<double> tt_x_tr;
+	N_P<double> tt_2;
+	N_P<double> tf_2;
+	N_P<double> tr_2;
+
+	for(n: G.nodes) (n.isWord && !delete_list_nodes.has(n)) {
+		double temp_tt_x_tf = 0.0D;
+		double temp_tt_x_tr = 0.0D;
+		double temp_tt_2 = 0.0D;
+		double temp_tf_2 = 0.0D;
+		double temp_tr_2 = 0.0D;
+		
+		foreach(e: n.outEdges) (!delete_mask.has(e.toNode())) {
+			temp_tt_x_tf += e.delta_tt * e.delta_tf;
+			temp_tt_x_tr += e.delta_tt * e.delta_tr;
+			temp_tt_2 += e.delta_tt * e.delta_tt;
+			temp_tf_2 += e.delta_tf * e.delta_tf;
+			temp_tr_2 += e.delta_tr * e.delta_tr;
+		}
+		n.tt_x_tf = temp_tt_x_tf;
+		n.tt_x_tr = temp_tt_x_tr;
+		n.tt_2 = temp_tt_2;
+		n.tf_2 = temp_tf_2;
+		n.tr_2 = temp_tr_2;
+	}
+	double mean = 0.0D;
+
+	//TODO: fix error in loop condition maybe?
+	for(n: G.nodes) (n.isWord && !delete_list_nodes.has(n)) {
+		cos_temp = 0;
+		cos_r_temp = 0;
+		if(n.tt_2 > 0 && n.tf_2 > 0)
+			cos_temp = n.tt_x_tf / (sqrt(n.tt_2) * sqrt(n.tf_2));
+		if(n.tt_2 > 0 && n.tr_2 > 0)
+			cos_temp = n.tt_x_tr / (sqrt(n.tt_2) * sqrt(n.tr_2));
+		cos_sim.add(cos_temp);
+		cos_sim_r.add(cos_r_temp);
+	}
+	
+	mean = sum(d: cos_sim.items) {d};
+	return mean/cos_sim.size();
+}
